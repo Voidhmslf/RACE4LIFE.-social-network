@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RACE4LIFE — Блог об автоспорте и симрейсинге</title>
+  <meta name="description" content="RACE4LIFE — Авторский медиа-блог об автоспорте, Формуле-1, автомобильной технике и симрейсинге. Материалы семестра 2026.">
+
+  <!-- Google Fonts: Plus Jakarta Sans (Interface & Titles) + Lora (Editorial Body Text) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            surface: {
+              950: '#0E0F12',
+              900: '#141519',
+              850: '#1A1C22',
+              800: '#22242B',
+              700: '#2D3039',
+              600: '#3D414D'
+            },
+            racing: {
+              carmine: '#C8102E',
+              dark: '#9E0B22',
+              soft: 'rgba(200, 16, 46, 0.12)'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            serif: ['Lora', 'Georgia', 'serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Clean Editorial CSS -->
+  <style>
+    /* Warm Charcoal Matte Background */
+    body {
+      background-color: #0E0F12;
+      color: #E2E4E9;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle minimalist scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0E0F12;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2D3039;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3D414D;
+    }
+
+    /* Active calendar day button */
+    .calendar-day-active {
+      background-color: #C8102E !important;
+      color: #FFFFFF !important;
+      border-color: #C8102E !important;
+    }
+    .calendar-day-active .day-dot {
+      background-color: #FFFFFF !important;
+    }
+    .calendar-day-active .day-week {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-racing-carmine selection:text-white">
+
+  <!-- ======================================================== -->
+  <!-- 1. HEADER (ЛАКОНИЧНАЯ ЖУРНАЛЬНАЯ ШАПКА)                 -->
+  <!-- ======================================================== -->
+  <header class="sticky top-0 z-40 bg-surface-950/95 backdrop-blur-md border-b border-surface-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3.5 flex items-center justify-between gap-4">
+      
+      <!-- Логотип бренда -->
+      <div class="flex items-center gap-3 cursor-pointer select-none" id="btn-brand-home">
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-sans font-extrabold text-xl tracking-tight text-white">
+              RACE4LIFE<span class="text-racing-carmine">.</span>
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400 font-normal tracking-wide hidden sm:block">
+            автоспорт &middot; техника &middot; симрейсинг
+          </p>
+        </div>
+      </div>
+
+      <!-- Живой поиск -->
+      <div class="flex-1 max-w-md hidden md:block">
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"></i>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Поиск по статьям, событиям, пилотам..." 
+            class="w-full bg-surface-900 border border-surface-800 rounded-xl pl-10 pr-9 py-2 text-xs sm:text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+          >
+          <button id="search-clear-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white hidden">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Правые контролы: Переключатель режима и кнопка публикации -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Аккуратный переключатель Режима чтения / Редактора -->
+        <div class="bg-surface-900 border border-surface-800 rounded-lg p-1 flex items-center text-xs">
+          <button 
+            id="mode-reader-btn"
+            class="px-2.5 py-1 rounded-md font-medium transition-colors text-zinc-400 hover:text-white"
+            title="Публичный вид блога для читателей"
+          >
+            Чтение
+          </button>
+          <button 
+            id="mode-author-btn"
+            class="px-2.5 py-1 rounded-md font-medium transition-colors bg-surface-800 text-white shadow-sm"
+            title="Режим редактора: доступны кнопки управления и создания"
+          >
+            Редактор
+          </button>
+        </div>
+
+        <!-- Кнопка Написать пост -->
+        <button 
+          id="btn-open-create-modal" 
+          class="flex items-center gap-1.5 bg-racing-carmine hover:bg-racing-dark text-white font-medium text-xs sm:text-sm px-3.5 py-2 rounded-lg transition-colors cursor-pointer shadow-sm"
+        >
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Написать</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Мобильная строка поиска -->
+    <div class="md:hidden px-4 pb-3">
+      <div class="relative">
+        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"></i>
+        <input 
+          type="text" 
+          id="search-input-mobile" 
+          placeholder="Поиск по статьям..." 
+          class="w-full bg-surface-900 border border-surface-800 rounded-lg pl-9 pr-4 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
+        >
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- 2. MAIN WORKSPACE (ТРЕХКОЛОНОЧНЫЙ ЖУРНАЛЬНЫЙ МАКЕТ)     -->
+  <!-- ======================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- ==================================================== -->
+      <!-- ЛЕВАЯ КОЛОНКА (РУБРИКИ И КАЛЕНДАРЬ) — col-span-3     -->
+      <!-- ==================================================== -->
+      <aside class="lg:col-span-3 space-y-7">
+
+        <!-- Навигация по рубрикам -->
+        <div class="bg-surface-900 border border-surface-800 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h2 class="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+              Рубрики
+            </h2>
+            <span id="badge-total-posts-nav" class="text-xs text-zinc-500">465</span>
+          </div>
+
+          <nav class="space-y-1" id="category-filter-nav">
+            <button 
+              data-category="all" 
+              class="category-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors bg-surface-800 text-white"
+            >
+              <span>Все публикации</span>
+              <span class="category-count text-xs text-zinc-400" id="nav-count-all">465</span>
+            </button>
+
+            <button 
+              data-category="f1-news" 
+              class="category-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors text-zinc-400 hover:text-white hover:bg-surface-850"
+            >
+              <span>Формула-1</span>
+              <span class="category-count text-xs text-zinc-500" id="nav-count-f1-news">0</span>
+            </button>
+
+            <button 
+              data-category="car-science" 
+              class="category-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors text-zinc-400 hover:text-white hover:bg-surface-850"
+            >
+              <span>Авто-Научпоп</span>
+              <span class="category-count text-xs text-zinc-500" id="nav-count-car-science">0</span>
+            </button>
+
+            <button 
+              data-category="track-history" 
+              class="category-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors text-zinc-400 hover:text-white hover:bg-surface-850"
+            >
+              <span>История треков</span>
+              <span class="category-count text-xs text-zinc-500" id="nav-count-track-history">0</span>
+            </button>
+
+            <button 
+              data-category="simracing" 
+              class="category-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors text-zinc-400 hover:text-white hover:bg-surface-850"
+            >
+              <span>Симрейсинг</span>
+              <span class="category-count text-xs text-zinc-500" id="nav-count-simracing">0</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Календарь-архив по дням -->
+        <div class="bg-surface-900 border border-surface-800 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2 px-1">
+            <h2 class="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+              Архив по дням
+            </h2>
+            <button id="btn-calendar-all-days" class="text-xs text-zinc-400 hover:text-white transition-colors" title="Показать все публикации">
+              Сброс
+            </button>
+          </div>
+
+          <p class="text-[11px] text-zinc-500 px-1 mb-3">
+            16 сентября — 16 октября 2026
+          </p>
+
+          <!-- Переключатель месяцев: Сентябрь / Октябрь -->
+          <div class="grid grid-cols-2 gap-1 p-1 bg-surface-950 rounded-lg mb-3 border border-surface-800 text-xs">
+            <button id="cal-tab-sep" class="py-1 rounded-md text-center transition-colors bg-surface-800 text-white font-medium">
+              Сентябрь
+            </button>
+            <button id="cal-tab-oct" class="py-1 rounded-md text-center transition-colors text-zinc-400 hover:text-white font-medium">
+              Октябрь
+            </button>
+          </div>
+
+          <!-- Сетка дней календаря (чистая, без рябящих счетчиков) -->
+          <div id="calendar-grid-container" class="grid grid-cols-5 gap-1.5 max-h-[300px] overflow-y-auto pr-0.5">
+            <!-- Дни генерируются через app.js -->
+          </div>
+
+          <!-- Подпись статуса архива -->
+          <div class="mt-3.5 pt-3 border-t border-surface-800 flex items-center justify-between text-[11px] text-zinc-500">
+            <span>Заполнено:</span>
+            <span class="text-zinc-300 font-medium" id="calendar-completion-badge">31 из 31 дня</span>
+          </div>
+        </div>
+
+        <!-- Краткая сноска об учебном проекте -->
+        <div class="px-2 text-[11px] text-zinc-500 leading-relaxed">
+          Проект подготовлен в рамках учебного курса «Блогинг и PR-тексты». Все материалы сбалансированы по дням семестра.
+        </div>
+
+      </aside>
+
+      <!-- ==================================================== -->
+      <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА (ЛЕНТА СТАТЕЙ) — col-span-6      -->
+      <!-- ==================================================== -->
+      <section class="lg:col-span-6 space-y-6">
+
+        <!-- Плашка активного фильтра дня (если выбрана дата) -->
+        <div id="active-day-banner" class="hidden bg-surface-900 border border-surface-800 rounded-xl p-3.5 flex items-center justify-between gap-3">
+          <div>
+            <span class="text-[11px] text-zinc-400 block uppercase tracking-wider font-medium">Архивный выпуск</span>
+            <span class="text-sm font-semibold text-white" id="active-day-banner-title">24 сентября 2026</span>
+            <span class="text-xs text-zinc-400 block mt-0.5" id="active-day-banner-count">15 публикаций</span>
+          </div>
+          <button id="btn-reset-day-filter" class="text-xs px-3 py-1.5 rounded-lg bg-surface-800 hover:bg-surface-700 text-zinc-300 transition-colors">
+            Все дни
+          </button>
+        </div>
+
+        <!-- Плашка фильтра поиска / категории -->
+        <div id="search-filter-banner" class="hidden bg-surface-900 border border-surface-800 rounded-xl p-3 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-zinc-400">Фильтр:</span>
+            <span class="text-zinc-200 font-medium" id="search-filter-text">Поиск</span>
+          </div>
+          <button id="btn-reset-search-filter" class="text-zinc-400 hover:text-white">
+            Сбросить
+          </button>
+        </div>
+
+        <!-- Верхняя плашка ленты: количество и сортировка -->
+        <div class="flex items-center justify-between text-xs text-zinc-400 pb-2 border-b border-surface-800/80">
+          <div>
+            <span>Материалов: </span>
+            <strong class="text-zinc-200 font-semibold text-sm" id="feed-results-count">465</strong>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="hidden sm:inline text-zinc-500">Сортировать:</span>
+            <select 
+              id="feed-sort-select" 
+              class="bg-surface-900 border border-surface-800 text-xs text-zinc-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-zinc-500 cursor-pointer"
+            >
+              <option value="newest">Сначала новые</option>
+              <option value="oldest">Сначала ранние</option>
+              <option value="popular">По просмотрам</option>
+              <option value="likes">По оценкам</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Контейнер карточек постов -->
+        <div id="posts-container" class="space-y-6">
+          <!-- Карточки генерируются динамически через app.js -->
+        </div>
+
+        <!-- Кнопка "Загрузить следующие публикации" -->
+        <div class="pt-4 pb-8 text-center" id="load-more-container">
+          <button 
+            id="btn-load-more" 
+            class="px-6 py-2.5 rounded-xl bg-surface-900 hover:bg-surface-850 text-zinc-200 text-xs sm:text-sm font-medium border border-surface-800 hover:border-zinc-700 transition-colors inline-flex items-center gap-2"
+          >
+            <span id="load-more-text">Показать еще публикации</span>
+            <span class="text-xs text-zinc-500" id="load-more-progress">(15 из 465)</span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- ПРАВАЯ КОЛОНКА (ПРОФИЛЬ АВТОРА И СТАТИСТИКА) — col-span-3 -->
+      <!-- ==================================================== -->
+      <aside class="lg:col-span-3 space-y-7">
+
+        <!-- Карточка автора блога (Живая и человечная) -->
+        <div class="bg-surface-900 border border-surface-800 rounded-xl p-5">
+          <div class="flex items-center gap-3.5 mb-3.5">
+            <div class="w-12 h-12 rounded-full overflow-hidden bg-surface-800 shrink-0 border border-surface-700">
+              <img 
+                src="https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?auto=format&fit=crop&w=200&q=80" 
+                alt="Алексей Смирнов" 
+                class="w-full h-full object-cover"
+                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\'/%3E%3Ccircle cx=\'12\' cy=\'7\' r=\'4\'/%3E%3C/svg%3E'"
+              >
+            </div>
+
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h3 id="author-name-display" class="font-semibold text-sm text-white hover:text-racing-carmine transition-colors cursor-pointer" title="Нажмите, чтобы изменить имя">
+                  Алексей Смирнов
+                </h3>
+                <i data-lucide="edit-2" class="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" id="btn-edit-author-name"></i>
+              </div>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Автор блога &middot; Студент</p>
+            </div>
+          </div>
+
+          <p class="text-xs text-zinc-300 leading-relaxed font-serif">
+            Студент, веду блог об автоспорте в рамках курса «Блогинг и PR-тексты». Пишу про Ф1, технику и симуляторы.
+          </p>
+
+          <div class="mt-3.5 pt-3 border-t border-surface-800 flex items-center justify-between text-[11px] text-zinc-500">
+            <span>Период курса:</span>
+            <span class="text-zinc-400 font-medium">Осень 2026</span>
+          </div>
+        </div>
+
+        <!-- Статистика блога (Спокойная, без датчиков и геймификации) -->
+        <div class="bg-surface-900 border border-surface-800 rounded-xl p-5 space-y-3.5">
+          <h2 class="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+            Статистика блога
+          </h2>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex items-center justify-between py-1 border-b border-surface-800/60">
+              <span class="text-zinc-400">Всего материалов</span>
+              <span class="text-zinc-200 font-semibold" id="kpi-total-posts">465</span>
+            </div>
+            <div class="flex items-center justify-between py-1 border-b border-surface-800/60">
+              <span class="text-zinc-400">Период публикаций</span>
+              <span class="text-zinc-200 font-medium">31 день</span>
+            </div>
+            <div class="flex items-center justify-between py-1 border-b border-surface-800/60">
+              <span class="text-zinc-400">Суммарный охват</span>
+              <span class="text-zinc-200 font-semibold" id="kpi-total-views">~54 200</span>
+            </div>
+            <div class="flex items-center justify-between py-1 border-b border-surface-800/60">
+              <span class="text-zinc-400">Реакции читателей</span>
+              <span class="text-zinc-200 font-semibold" id="kpi-total-likes">~3 850</span>
+            </div>
+          </div>
+
+          <div class="pt-1 text-[11px] text-zinc-400 leading-relaxed">
+            <span class="text-emerald-400 font-medium">&#10003; Норма выполнена:</span> по 15 постов в каждый из 31 календарных дней.
+          </div>
+
+          <!-- Распределение по темам (лаконично) -->
+          <div class="pt-2 border-t border-surface-800/80 space-y-1.5 text-xs">
+            <div class="text-[11px] text-zinc-500 uppercase tracking-wider mb-1">Распределение статей:</div>
+            <div class="flex justify-between text-[11px] text-zinc-400">
+              <span>Формула-1</span>
+              <span id="pct-f1">25%</span>
+            </div>
+            <div class="flex justify-between text-[11px] text-zinc-400">
+              <span>Авто-Научпоп</span>
+              <span id="pct-science">25%</span>
+            </div>
+            <div class="flex justify-between text-[11px] text-zinc-400">
+              <span>История треков</span>
+              <span id="pct-history">25%</span>
+            </div>
+            <div class="flex justify-between text-[11px] text-zinc-400">
+              <span>Симрейсинг</span>
+              <span id="pct-sim">25%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Сервисные действия (Аккуратные ghost-кнопки внизу) -->
+        <div class="space-y-2 pt-2">
+          <button 
+            id="btn-export-json"
+            class="w-full py-2 px-3 rounded-lg bg-surface-900 hover:bg-surface-850 text-xs text-zinc-400 hover:text-zinc-200 transition-colors border border-surface-800 text-center flex items-center justify-center gap-1.5"
+          >
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Экспорт базы (JSON)</span>
+          </button>
+
+          <button 
+            id="btn-reset-database-trigger"
+            class="w-full py-2 px-3 rounded-lg hover:bg-surface-900 text-xs text-zinc-500 hover:text-zinc-400 transition-colors text-center flex items-center justify-center gap-1.5"
+            title="Восстановить исходные 465 постов"
+          >
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+            <span>Сбросить к 465 постам</span>
+          </button>
+        </div>
+
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- 3. FOOTER (МИНИМАЛИСТИЧНЫЙ ПОДВАЛ)                      -->
+  <!-- ======================================================== -->
+  <footer class="border-t border-surface-800 bg-surface-950 py-6 mt-16 text-xs text-zinc-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <span class="font-bold text-zinc-300">RACE4LIFE<span class="text-racing-carmine">.</span></span>
+        <span> &mdash; Блог об автоспорте и симрейсинге</span>
+      </div>
+      <div>
+        <span>Период курса: 16 сентября &mdash; 16 октября 2026 (465 публикаций)</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- 4. МОДАЛЬНОЕ ОКНО СОЗДАНИЯ / РЕДАКТИРОВАНИЯ ПОСТА       -->
+  <!-- ======================================================== -->
+  <div id="post-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-surface-800 flex items-center justify-between">
+        <div>
+          <h3 class="font-semibold text-base text-white" id="modal-title">Новая публикация</h3>
+          <p class="text-xs text-zinc-400">Форма создания материала для блога</p>
+        </div>
+        <button id="modal-close-btn" class="text-zinc-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Form) -->
+      <form id="post-form" class="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
+        
+        <!-- Заголовок поста -->
+        <div>
+          <label for="form-title" class="block text-zinc-300 font-medium mb-1">
+            Заголовок статьи <span class="text-racing-carmine">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="form-title" 
+            required
+            placeholder="Например: Романтика ночных заездов в Ле-Мане: каково лететь 330 км/ч в тумане" 
+            class="w-full bg-surface-950 border border-surface-800 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
+          >
+        </div>
+
+        <!-- Рубрика, Дата и Время публикации -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          
+          <div>
+            <label for="form-category" class="block text-zinc-300 font-medium mb-1">
+              Рубрика <span class="text-racing-carmine">*</span>
+            </label>
+            <select 
+              id="form-category" 
+              required
+              class="w-full bg-surface-950 border border-surface-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-500"
+            >
+              <option value="f1-news">Формула-1</option>
+              <option value="car-science">Авто-Научпоп</option>
+              <option value="track-history">История треков</option>
+              <option value="simracing">Симрейсинг</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="form-date" class="block text-zinc-300 font-medium mb-1">
+              Дата публикации <span class="text-racing-carmine">*</span>
+            </label>
+            <input 
+              type="date" 
+              id="form-date" 
+              required
+              min="2026-09-16"
+              max="2026-10-16"
+              value="2026-10-16"
+              class="w-full bg-surface-950 border border-surface-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-500"
+            >
+          </div>
+
+          <div>
+            <label for="form-time" class="block text-zinc-300 font-medium mb-1">
+              Время <span class="text-racing-carmine">*</span>
+            </label>
+            <input 
+              type="time" 
+              id="form-time" 
+              required
+              value="14:30"
+              class="w-full bg-surface-950 border border-surface-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-500"
+            >
+          </div>
+
+        </div>
+
+        <!-- Обложка публикации -->
+        <div class="space-y-2 pt-2 border-t border-surface-800">
+          <label class="block text-zinc-300 font-medium">
+            Обложка публикации
+          </label>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button 
+              type="button" 
+              id="tab-cover-url" 
+              class="py-1.5 px-2 rounded-lg bg-surface-800 text-white text-center border border-surface-700 transition-colors"
+            >
+              Ссылка (URL)
+            </button>
+            <button 
+              type="button" 
+              id="tab-cover-upload" 
+              class="py-1.5 px-2 rounded-lg bg-surface-950 text-zinc-400 hover:text-white text-center border border-surface-800 transition-colors"
+            >
+              Файл с ПК
+            </button>
+            <button 
+              type="button" 
+              id="btn-random-cover" 
+              class="py-1.5 px-2 rounded-lg bg-surface-950 text-zinc-300 hover:text-white text-center border border-surface-800 transition-colors flex items-center justify-center gap-1"
+              title="Подобрать подходящую фотографию по названию и смыслу статьи"
+            >
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-racing-carmine"></i>
+              <span>Подобрать фото по теме поста</span>
+            </button>
+          </div>
+
+          <div id="cover-url-section">
+            <input 
+              type="text" 
+              id="form-image-url" 
+              placeholder="images/... или ссылка на фото" 
+              class="w-full bg-surface-950 border border-surface-800 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
+            >
+          </div>
+
+          <div id="cover-upload-section" class="hidden">
+            <label class="flex flex-col items-center justify-center p-4 border border-dashed border-surface-700 hover:border-zinc-500 rounded-xl bg-surface-950/60 cursor-pointer transition-colors">
+              <i data-lucide="upload" class="w-5 h-5 text-zinc-400 mb-1"></i>
+              <span class="text-zinc-300">Выберите фото с компьютера</span>
+              <span class="text-[10px] text-zinc-500">Автоматическое сжатие для экономии памяти</span>
+              <input type="file" id="form-file-input" accept="image/*" class="hidden">
+            </label>
+          </div>
+
+          <!-- Превью обложки -->
+          <div class="relative rounded-xl overflow-hidden h-28 bg-surface-950 border border-surface-800">
+            <img 
+              id="form-cover-preview" src="images/sim_1_0.jpg" 
+              alt="Превью" 
+              class="w-full h-full object-cover"
+              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Crect width=\'18\' height=\'18\' x=\'3\' y=\'3\' rx=\'2\'/%3E%3C/svg%3E'"
+            >
+          </div>
+        </div>
+
+        <!-- Краткий лид (анонс) -->
+        <div class="pt-2 border-t border-surface-800">
+          <div class="flex items-center justify-between mb-1">
+            <label for="form-excerpt" class="block text-zinc-300 font-medium">
+              Краткий лид (анонс статьи)
+            </label>
+            <button type="button" id="btn-auto-excerpt" class="text-[11px] text-zinc-400 hover:text-white">
+              Сформировать из текста
+            </button>
+          </div>
+          <textarea 
+            id="form-excerpt" 
+            rows="2" 
+            placeholder="Краткое вступительное слово для ленты..." 
+            class="w-full bg-surface-950 border border-surface-800 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-serif leading-relaxed"
+          ></textarea>
+        </div>
+
+        <!-- Полный текст публикации -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="form-content" class="block text-zinc-300 font-medium">
+              Текст публикации <span class="text-racing-carmine">*</span>
+            </label>
+            <div class="flex items-center gap-1 text-[10px]">
+              <button type="button" class="btn-insert-tag px-2 py-0.5 rounded bg-surface-800 hover:bg-surface-700 text-zinc-300" data-insert="\n\n### Подзаголовок\n">
+                + Подзаголовок
+              </button>
+              <button type="button" class="btn-insert-tag px-2 py-0.5 rounded bg-surface-800 hover:bg-surface-700 text-zinc-300" data-insert="\n\n> «Цитата или важная мысль»\n">
+                + Цитата
+              </button>
+            </div>
+          </div>
+          <textarea 
+            id="form-content" 
+            rows="7" 
+            required
+            placeholder="Развернутый текст статьи..." 
+            class="w-full bg-surface-950 border border-surface-800 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-serif leading-relaxed"
+          ></textarea>
+        </div>
+
+      </form>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-surface-800 flex items-center justify-end gap-3 bg-surface-950">
+        <button 
+          type="button" 
+          id="modal-cancel-btn" 
+          class="px-4 py-2 rounded-lg bg-surface-850 hover:bg-surface-800 text-zinc-300 text-xs font-medium transition-colors"
+        >
+          Отмена
+        </button>
+        <button 
+          type="button" 
+          id="modal-submit-btn" 
+          class="px-5 py-2 rounded-lg bg-racing-carmine hover:bg-racing-dark text-white text-xs font-medium transition-colors"
+        >
+          <span id="modal-submit-text">Сохранить</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 5. МОДАЛЬНОЕ ОКНО ЧТЕНИЯ СТАТЬИ (ЖУРНАЛЬНЫЙ РИДЕР)       -->
+  <!-- ======================================================== -->
+  <div id="reader-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Reader Header -->
+      <div class="px-6 py-4 border-b border-surface-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span id="reader-category-badge" class="text-xs font-medium text-zinc-300">Рубрика</span>
+          <span class="text-zinc-500">&middot;</span>
+          <span id="reader-timestamp" class="text-xs text-zinc-400">24 сентября 2026, 14:35</span>
+        </div>
+        <button id="reader-close-btn" class="text-zinc-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Reader Scrollable Content -->
+      <div class="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1">
+        
+        <!-- Large Hero Image -->
+        <div class="rounded-xl overflow-hidden max-h-80 w-full bg-surface-950 border border-surface-800">
+          <img 
+            id="reader-image" 
+            src="" 
+            alt="Обложка" 
+            class="w-full h-full object-cover"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Crect width=\'18\' height=\'18\' x=\'3\' y=\'3\' rx=\'2\'/%3E%3C/svg%3E'"
+          >
+        </div>
+
+        <!-- Title -->
+        <h1 id="reader-title" class="font-sans font-bold text-xl sm:text-2xl text-white leading-tight">
+          Заголовок статьи
+        </h1>
+
+        <!-- Stats Row -->
+        <div class="flex items-center gap-4 py-3 border-y border-surface-800 text-xs text-zinc-400">
+          <div><span id="reader-views">142</span> просмотра</div>
+          <div><span id="reader-likes">18</span> отметок</div>
+          <div class="ml-auto text-zinc-500">Блог «RACE4LIFE»</div>
+        </div>
+
+        <!-- Formatted Article Content (Lora Serif) -->
+        <div id="reader-content" class="font-serif text-base text-zinc-200 leading-relaxed space-y-4">
+          <!-- Текст статьи -->
+        </div>
+
+      </div>
+
+      <!-- Reader Footer -->
+      <div class="px-6 py-4 border-t border-surface-800 flex items-center justify-between bg-surface-950">
+        <button 
+          id="reader-like-btn" 
+          class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 text-zinc-200 text-xs font-medium transition-colors"
+        >
+          <i data-lucide="heart" class="w-4 h-4 text-racing-carmine"></i>
+          <span>Оценить</span>
+        </button>
+
+        <button 
+          id="reader-share-btn" 
+          class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 text-zinc-300 text-xs font-medium transition-colors"
+        >
+          <i data-lucide="share" class="w-3.5 h-3.5"></i>
+          <span>Поделиться</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 6. МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ ПОСТА           -->
+  <!-- ======================================================== -->
+  <div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="bg-surface-900 border border-surface-700 rounded-xl max-w-sm w-full p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-center">
+      <h3 class="font-semibold text-white text-base mb-2">Удалить публикацию?</h3>
+      <p class="text-xs text-zinc-400 mb-5 leading-relaxed" id="delete-modal-post-title">
+        Вы уверены, что хотите удалить этот материал из блога?
+      </p>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button id="delete-modal-cancel-btn" class="py-2 rounded-lg bg-surface-800 hover:bg-surface-700 text-zinc-300 text-xs font-medium transition-colors">
+          Отмена
+        </button>
+        <button id="delete-modal-confirm-btn" class="py-2 rounded-lg bg-racing-carmine hover:bg-racing-dark text-white text-xs font-medium transition-colors">
+          Удалить
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 7. МОДАЛЬНОЕ ОКНО СБРОСА БАЗЫ                            -->
+  <!-- ======================================================== -->
+  <div id="reset-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="bg-surface-900 border border-surface-700 rounded-xl max-w-md w-full p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+      <h3 class="font-semibold text-white text-base mb-2">Сбросить базу данных?</h3>
+      <p class="text-xs text-zinc-400 mb-5 leading-relaxed">
+        Будут восстановлены исходные <strong class="text-white">465 публикаций</strong> (по 15 постов в каждый из 31 календарных дней с 16 сентября по 16 октября 2026).
+      </p>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button id="reset-modal-cancel-btn" class="py-2 rounded-lg bg-surface-800 hover:bg-surface-700 text-zinc-300 text-xs font-medium transition-colors">
+          Отмена
+        </button>
+        <button id="reset-modal-confirm-btn" class="py-2 rounded-lg bg-zinc-200 hover:bg-white text-surface-950 text-xs font-semibold transition-colors">
+          Восстановить
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 8. TOAST-УВЕДОМЛЕНИЯ                                     -->
+  <!-- ======================================================== -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- ======================================================== -->
+  <!-- 9. ПОДКЛЮЧЕНИЕ СКРИПТОВ                                  -->
+  <!-- ======================================================== -->
+  <script src="data-generator.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>
