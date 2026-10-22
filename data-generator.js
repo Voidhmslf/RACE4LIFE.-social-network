@@ -3749,9 +3749,11 @@
         const varIdx = topicUsageCounters[topicId]++;
         const variation = TOPIC_VARIATIONS[topicId][varIdx];
 
-        const title = variation.title;
-        const excerpt = variation.excerpt;
-        const content = [variation.excerpt, variation.p1, variation.p2, variation.p3].join('\n\n');
+        // Полноценные статьи (articles.js) имеют приоритет над короткими заготовками
+        const article = (window.ARTICLES && window.ARTICLES[topicId] && window.ARTICLES[topicId][varIdx]) || null;
+        const title = article ? article.t : variation.title;
+        const excerpt = article ? article.e : variation.excerpt;
+        const content = article ? article.c : [variation.excerpt, variation.p1, variation.p2, variation.p3].join('\n\n');
         const image = `images/${topicId}_${varIdx}.jpg`;
 
         // Реалистичное время публикации
@@ -3815,8 +3817,8 @@
   }
 
   // Ключ хранилища шестой версии (465 уникальных статей и обложек v6)
-  const STORAGE_KEY = 'race4life_posts_v6';
-  const SEED_VERSION_MARKER = 'v6';
+  const STORAGE_KEY = 'race4life_posts_v7';
+  const SEED_VERSION_MARKER = 'v7';
 
   function seedDatabase(forceReset = false) {
     if (!forceReset) {
@@ -3847,6 +3849,7 @@
       localStorage.removeItem('race4life_posts_v3');
       localStorage.removeItem('race4life_posts_v4');
       localStorage.removeItem('race4life_posts_v5');
+      localStorage.removeItem('race4life_posts_v6');
       localStorage.setItem(STORAGE_KEY, JSON.stringify(freshPosts));
       localStorage.setItem('race4life_seed_version', SEED_VERSION_MARKER);
       console.log(`RACE4LIFE: Успешно сохранено ${freshPosts.length} постов с уникальными статьями v6.`);

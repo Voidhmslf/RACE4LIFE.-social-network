@@ -100,6 +100,10 @@ RACE4LIFE/
 ├── index.html                  # Главная страница: журнальная верстка, шапка, 3-колоночный лейаут, модалки
 ├── app.js                      # Основная клиентская логика: App State, рендеринг, CRUD, поиск, календарь
 ├── data-generator.js           # Встроенный модуль сидирования базы и семантического сопоставления ассетов
+├── articles.js                 # Собранные тексты статей (генерируется build_articles.js из content/*.js)
+├── content/                    # Исходники текстов: по 2–3 темы на файл, править здесь
+├── build_articles.js           # node build_articles.js — собирает content/*.js в articles.js
+├── validate_articles.js        # node validate_articles.js — проверка полноты, длины и дублей
 ├── original_data.json          # Исходный эталонный массив данных в формате JSON
 │
 ├── images/                     # Локальная библиотека фотографий (480+ снимков)

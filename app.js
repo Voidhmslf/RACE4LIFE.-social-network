@@ -85,7 +85,7 @@
 
   function savePostsToStorage() {
     try {
-      const storageKey = (window.DataGenerator && window.DataGenerator.STORAGE_KEY) || 'race4life_posts_v6';
+      const storageKey = (window.DataGenerator && window.DataGenerator.STORAGE_KEY) || 'race4life_posts_v7';
       localStorage.setItem(storageKey, JSON.stringify(state.posts));
     } catch (err) {
       console.error('RACE4LIFE: Ошибка записи в localStorage:', err);
@@ -1436,20 +1436,26 @@
   function formatArticleText(rawText) {
     if (!rawText) return '';
     const paragraphs = rawText.split('\n\n');
+    // экранируем HTML, затем разворачиваем **жирный**
+    const inline = (s) => escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong class="text-zinc-100 font-semibold">$1</strong>');
 
     return paragraphs.map(p => {
       const trimmed = p.trim();
       if (trimmed.startsWith('###')) {
-        return `<h4 class="font-sans font-bold text-base text-zinc-100 mt-4 mb-2">${escapeHtml(trimmed.replace(/^###\s*/, ''))}</h4>`;
+        return `<h4 class="font-sans font-bold text-base text-zinc-100 mt-4 mb-2">${inline(trimmed.replace(/^###\s*/, ''))}</h4>`;
       }
       if (trimmed.startsWith('>')) {
-        return `<blockquote class="border-l-2 border-racing-carmine pl-4 py-1 my-3 text-zinc-300 italic font-serif">${escapeHtml(trimmed.replace(/^>\s*/, ''))}</blockquote>`;
+        return `<blockquote class="border-l-2 border-racing-carmine pl-4 py-1 my-3 text-zinc-300 italic font-serif">${inline(trimmed.replace(/^>\s*/, ''))}</blockquote>`;
       }
       if (trimmed.startsWith('-')) {
-        const items = trimmed.split('\n').map(li => `<li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-racing-carmine"></span>${escapeHtml(li.replace(/^-\s*/, ''))}</li>`).join('');
+        const items = trimmed.split('\n').map(li => `<li class="flex items-start gap-2"><span class="w-1.5 h-1.5 mt-2 shrink-0 rounded-full bg-racing-carmine"></span><span>${inline(li.replace(/^-\s*/, ''))}</span></li>`).join('');
         return `<ul class="space-y-1.5 my-3 text-zinc-300 pl-1">${items}</ul>`;
       }
-      return `<p class="leading-relaxed text-zinc-300 font-serif">${escapeHtml(trimmed)}</p>`;
+      if (/^\d+\.\s/.test(trimmed)) {
+        const items = trimmed.split('\n').map(li => `<li>${inline(li.replace(/^\d+\.\s*/, ''))}</li>`).join('');
+        return `<ol class="list-decimal space-y-1.5 my-3 text-zinc-300 pl-6 marker:text-racing-carmine">${items}</ol>`;
+      }
+      return `<p class="leading-relaxed text-zinc-300 font-serif">${inline(trimmed)}</p>`;
     }).join('');
   }
 
