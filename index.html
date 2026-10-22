@@ -6,10 +6,9 @@
   <title>RACE4LIFE — Блог об автоспорте и симрейсинге</title>
   <meta name="description" content="RACE4LIFE — Авторский медиа-блог об автоспорте, Формуле-1, инженерных решениях, истории гонок и профессиональном симрейсинге.">
 
-  <!-- Google Fonts: Plus Jakarta Sans (Interface & Titles) + Lora (Editorial Body Text) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Fira+Sans+Extra+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -28,14 +27,14 @@
               600: '#3D414D'
             },
             racing: {
-              carmine: '#C8102E',
-              dark: '#9E0B22',
-              soft: 'rgba(200, 16, 46, 0.12)'
+              carmine: '#FF4B1F',
+              dark: '#E03A12',
+              soft: 'rgba(255, 75, 31, 0.12)'
             }
           },
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-            serif: ['Lora', 'Georgia', 'serif']
+            sans: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
+            serif: ['"Source Serif 4"', 'Georgia', 'serif']
           }
         }
       }
@@ -85,6 +84,7 @@
       color: rgba(255, 255, 255, 0.8) !important;
     }
   </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body class="min-h-screen flex flex-col selection:bg-racing-carmine selection:text-white">
 
@@ -97,14 +97,8 @@
       <!-- Логотип бренда -->
       <div class="flex items-center gap-3 cursor-pointer select-none" id="btn-brand-home">
         <div>
-          <div class="flex items-center gap-1.5">
-            <span class="font-sans font-extrabold text-xl tracking-tight text-white">
-              RACE4LIFE<span class="text-racing-carmine">.</span>
-            </span>
-          </div>
-          <p class="text-[11px] text-zinc-400 font-normal tracking-wide hidden sm:block">
-            автоспорт &middot; техника &middot; симрейсинг
-          </p>
+          <div class="wordmark text-white">Race4Life<em>.</em></div>
+          <p class="tagline hidden sm:block mt-1">автоспорт · техника · симрейсинг</p>
         </div>
       </div>
 
@@ -273,7 +267,7 @@
 
         <!-- Копирайт и название сайта -->
         <div class="px-2 text-[11px] text-zinc-500 leading-relaxed">
-          &copy; 2026 RACE4LIFE. Все права защищены.
+          &copy; 2026 Race4Life
         </div>
 
       </aside>
@@ -353,29 +347,20 @@
         <!-- Карточка автора блога (Живая и человечная) -->
         <div class="bg-surface-900 border border-surface-800 rounded-xl p-5">
           <div class="flex items-center gap-3.5 mb-3.5">
-            <div class="w-12 h-12 rounded-full overflow-hidden bg-surface-800 shrink-0 border border-surface-700">
-              <img 
-                src="https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?auto=format&fit=crop&w=200&q=80" 
-                alt="Алексей Смирнов" 
-                class="w-full h-full object-cover"
-                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\'/%3E%3Ccircle cx=\'12\' cy=\'7\' r=\'4\'/%3E%3C/svg%3E'"
-              >
-            </div>
+            <div class="author-mark" id="author-mark">А</div>
 
             <div>
               <div class="flex items-center gap-1.5">
                 <h3 id="author-name-display" class="font-semibold text-sm text-white hover:text-racing-carmine transition-colors cursor-pointer" title="Нажмите, чтобы изменить имя">
-                  Алексей Смирнов
+                  Автор блога
                 </h3>
                 <i data-lucide="edit-2" class="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" id="btn-edit-author-name"></i>
               </div>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Автор блога &middot; Автоспортивный обозреватель</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">нажмите на имя, чтобы изменить</p>
             </div>
           </div>
 
-          <p class="text-xs text-zinc-300 leading-relaxed font-serif">
-            Авторский блог об автоспорте. Пишу про Формулу-1, передовую гоночную инженерию, историю культовых автодромов и профессиональный симрейсинг.
-          </p>
+          <p class="text-xs text-zinc-300 leading-relaxed font-serif">Блог об автоспорте: Формула-1, инженерия, история трасс и симрейсинг. Каждый день — новый выпуск.</p>
 
           <div class="mt-3.5 pt-3 border-t border-surface-800 flex items-center justify-between text-[11px] text-zinc-500">
             <span>Период публикаций:</span>
@@ -400,11 +385,11 @@
             </div>
             <div class="flex items-center justify-between py-1 border-b border-surface-800/60">
               <span class="text-zinc-400">Суммарный охват</span>
-              <span class="text-zinc-200 font-semibold" id="kpi-total-views">~54 200</span>
+              <span class="text-zinc-200 font-semibold" id="kpi-total-views">54 200</span>
             </div>
             <div class="flex items-center justify-between py-1 border-b border-surface-800/60">
               <span class="text-zinc-400">Реакции читателей</span>
-              <span class="text-zinc-200 font-semibold" id="kpi-total-likes">~3 850</span>
+              <span class="text-zinc-200 font-semibold" id="kpi-total-likes">3 850</span>
             </div>
           </div>
 

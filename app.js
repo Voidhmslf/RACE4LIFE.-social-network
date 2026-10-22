@@ -15,7 +15,7 @@
     filteredPosts: [],
     displayedCount: 15, // Показ порциями по 15 постов
     authorMode: true,   // true = режим редактора (CRUD кнопки), false = режим чтения (чистый журнальный вид)
-    authorName: 'Алексей Смирнов',
+    authorName: 'Автор блога',
     selectedCategory: 'all',
     selectedDate: null, // 'YYYY-MM-DD' или null
     searchQuery: '',
@@ -85,7 +85,7 @@
 
   function savePostsToStorage() {
     try {
-      const storageKey = (window.DataGenerator && window.DataGenerator.STORAGE_KEY) || 'race4life_posts_v7';
+      const storageKey = (window.DataGenerator && window.DataGenerator.STORAGE_KEY) || 'race4life_posts_v8';
       localStorage.setItem(storageKey, JSON.stringify(state.posts));
     } catch (err) {
       console.error('RACE4LIFE: Ошибка записи в localStorage:', err);
@@ -282,98 +282,51 @@
     ` : '';
 
     return `
-      <article 
-        class="bg-surface-900 border border-surface-800 rounded-xl overflow-hidden hover:border-zinc-700/80 transition-colors group"
-        data-post-id="${post.id}"
-      >
-        <!-- Обложка -->
-        <div class="relative h-48 sm:h-56 w-full overflow-hidden bg-surface-950 cursor-pointer" data-action="read" data-id="${post.id}">
-          <img 
-            src="${post.image}" 
-            alt="${escapeHtml(post.title)}" 
-            loading="lazy"
-            class="w-full h-full object-cover transform group-hover:scale-102 transition-transform duration-300"
-            onerror="this.onerror=null;this.src='${FALLBACK_SVG}'"
-          >
-        </div>
-
-        <!-- Контентная часть карточки -->
-        <div class="p-5 sm:p-6 space-y-3">
-          
-          <!-- Метаданные: Рубрика и Дата -->
-          <div class="flex items-center gap-2 text-xs">
-            <span class="font-medium text-racing-carmine cursor-pointer hover:underline" data-action="filter-cat" data-category="${post.category}">
-              #${catMeta.name}
-            </span>
-            <span class="text-zinc-600">&middot;</span>
-            <span class="text-zinc-400">${formattedDate}</span>
-          </div>
-
-          <!-- Заголовок статьи -->
-          <h3 
-            class="font-sans font-bold text-base sm:text-lg text-white hover:text-racing-carmine transition-colors cursor-pointer leading-snug"
-            data-action="read" 
-            data-id="${post.id}"
-          >
-            ${escapeHtml(post.title)}
-          </h3>
-
-          <!-- Текст лида (стиль Lora Serif) -->
-          <p class="font-serif text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
-            ${escapeHtml(excerpt)}
-          </p>
-
-          <!-- Скрываемый полный текст публикации -->
-          <div class="hidden pt-3 text-xs sm:text-sm font-serif text-zinc-200 leading-relaxed space-y-3 border-t border-surface-800 post-full-content" id="full-content-${post.id}">
-            ${formatArticleText(post.content)}
-          </div>
-
-          <!-- Ссылка "Читать далее" -->
-          <div class="pt-1">
-            <button 
-              data-action="toggle-expand" 
-              data-id="${post.id}"
-              class="text-xs text-zinc-400 hover:text-white transition-colors inline-flex items-center gap-1 font-medium"
+      <article data-post-id="${post.id}" class="group">
+        <div class="post-card">
+          <div class="post-cover relative overflow-hidden bg-surface-900 cursor-pointer" data-action="read" data-id="${post.id}">
+            <img
+              src="${post.image}"
+              alt="${escapeHtml(post.title)}"
+              loading="lazy"
+              class="w-full h-full object-cover"
+              onerror="this.onerror=null;this.src='${FALLBACK_SVG}'"
             >
-              <span class="expand-btn-text">Читать далее &rarr;</span>
-            </button>
           </div>
 
-          <!-- Подвал карточки: реакции, просмотры, действия автора -->
-          <div class="pt-3 border-t border-surface-800 flex items-center gap-4 text-xs text-zinc-400">
-            
-            <!-- Лайк -->
-            <button 
-              data-action="like" 
-              data-id="${post.id}" 
-              class="flex items-center gap-1.5 transition-colors cursor-pointer ${likedClass}"
-              title="Оценить публикацию"
-            >
-              <i data-lucide="heart" class="w-4 h-4 stroke-[2]" fill="${heartSvgFill}"></i>
-              <span class="like-counter">${formatNumber(post.likes)}</span>
-            </button>
-
-            <!-- Просмотры -->
-            <div class="flex items-center gap-1.5 text-zinc-400">
-              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-              <span>${formatNumber(post.views)}</span>
+          <div class="flex-1 min-w-0 space-y-3">
+            <div class="post-kicker">
+              <b data-action="filter-cat" data-category="${post.category}">${catMeta.name}</b>
+              <span>${formattedDate}</span>
             </div>
 
-            <!-- Поделиться -->
-            <button 
-              data-action="share" 
-              data-id="${post.id}" 
-              class="hover:text-white transition-colors cursor-pointer"
-              title="Скопировать ссылку"
-            >
-              <i data-lucide="share" class="w-3.5 h-3.5"></i>
-            </button>
+            <h3 class="post-title" data-action="read" data-id="${post.id}">${escapeHtml(post.title)}</h3>
 
-            <!-- Кнопки управления (только для автора) -->
-            ${authorControlsHTML}
+            <p class="post-lead">${escapeHtml(excerpt)}</p>
 
+            <div class="hidden pt-4 mt-2 border-t border-surface-800 post-full-content space-y-3" id="full-content-${post.id}">
+              ${formatArticleText(post.content)}
+            </div>
+
+            <div class="post-meta flex items-center gap-5 pt-1">
+              <button data-action="toggle-expand" data-id="${post.id}" class="uppercase tracking-wider text-zinc-300 hover:text-racing-carmine transition-colors">
+                <span class="expand-btn-text">Читать далее &rarr;</span>
+              </button>
+
+              <button data-action="like" data-id="${post.id}" class="flex items-center gap-1.5 transition-colors cursor-pointer ${likedClass}" title="Оценить публикацию">
+                <i data-lucide="heart" class="w-3.5 h-3.5" fill="${heartSvgFill}"></i>
+                <span class="like-counter">${formatNumber(post.likes)}</span>
+              </button>
+
+              <span class="flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i>${formatNumber(post.views)}</span>
+
+              <button data-action="share" data-id="${post.id}" class="hover:text-white transition-colors cursor-pointer" title="Скопировать ссылку">
+                <i data-lucide="share" class="w-3.5 h-3.5"></i>
+              </button>
+
+              ${authorControlsHTML}
+            </div>
           </div>
-
         </div>
       </article>
     `;
@@ -579,8 +532,8 @@
     const kpiTotalLikes = document.getElementById('kpi-total-likes');
 
     if (kpiTotalPosts) kpiTotalPosts.textContent = totalPosts;
-    if (kpiTotalViews) kpiTotalViews.textContent = `~${formatNumber(totalViews)}`;
-    if (kpiTotalLikes) kpiTotalLikes.textContent = `~${formatNumber(totalLikes)}`;
+    if (kpiTotalViews) kpiTotalViews.textContent = formatNumber(totalViews);
+    if (kpiTotalLikes) kpiTotalLikes.textContent = formatNumber(totalLikes);
 
     const pctF1 = totalPosts > 0 ? Math.round((catCounts['f1-news'] / totalPosts) * 100) : 0;
     const pctSci = totalPosts > 0 ? Math.round((catCounts['car-science'] / totalPosts) * 100) : 0;
@@ -1021,6 +974,8 @@
   function updateAuthorNameUI() {
     const el = document.getElementById('author-name-display');
     if (el) el.textContent = state.authorName;
+    const mark = document.getElementById('author-mark');
+    if (mark) mark.textContent = (state.authorName || 'А').trim().charAt(0).toUpperCase();
   }
 
   // ========================================================

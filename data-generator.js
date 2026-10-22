@@ -3817,8 +3817,8 @@
   }
 
   // Ключ хранилища шестой версии (465 уникальных статей и обложек v6)
-  const STORAGE_KEY = 'race4life_posts_v7';
-  const SEED_VERSION_MARKER = 'v7';
+  const STORAGE_KEY = 'race4life_posts_v8';
+  const SEED_VERSION_MARKER = 'v8';
 
   function seedDatabase(forceReset = false) {
     if (!forceReset) {
@@ -3850,6 +3850,7 @@
       localStorage.removeItem('race4life_posts_v4');
       localStorage.removeItem('race4life_posts_v5');
       localStorage.removeItem('race4life_posts_v6');
+      localStorage.removeItem('race4life_posts_v7');
       localStorage.setItem(STORAGE_KEY, JSON.stringify(freshPosts));
       localStorage.setItem('race4life_seed_version', SEED_VERSION_MARKER);
       console.log(`RACE4LIFE: Успешно сохранено ${freshPosts.length} постов с уникальными статьями v6.`);
