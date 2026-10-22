@@ -1,11 +1,11 @@
-// Проверка контента: node validate_articles.js
+// Проверка контента: node tools/validate_articles.js
 // Ищет пропущенные статьи, дубли заголовков и предложений, слишком короткие тексты.
 const fs = require('fs');
 const path = require('path');
 
 global.window = {};
-require(path.join(__dirname, 'articles.js'));
-const src = fs.readFileSync(path.join(__dirname, 'data-generator.js'), 'utf8');
+require(path.join(__dirname, '..', 'articles.js'));
+const src = fs.readFileSync(path.join(__dirname, '..', 'data-generator.js'), 'utf8');
 const order = JSON.parse(src.match(/const ORDERED_TOPIC_IDS = (\[.*?\]);/)[1]);
 const TOTAL = 465;
 const MIN_CHARS = 800;

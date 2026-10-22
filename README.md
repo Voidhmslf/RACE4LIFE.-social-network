@@ -100,11 +100,11 @@ RACE4LIFE/
 ├── index.html                  # Главная страница: журнальная верстка, шапка, 3-колоночный лейаут, модалки
 ├── app.js                      # Основная клиентская логика: App State, рендеринг, CRUD, поиск, календарь
 ├── data-generator.js           # Встроенный модуль сидирования базы и семантического сопоставления ассетов
-├── articles.js                 # Собранные тексты статей (генерируется build_articles.js из content/*.js)
+├── articles.js                 # Собранные тексты статей (генерируется tools/build_articles.js из content/*.js)
 ├── content/                    # Исходники текстов: по 2–3 темы на файл, править здесь
-├── build_articles.js           # node build_articles.js — собирает content/*.js в articles.js
-├── validate_articles.js        # node validate_articles.js — проверка полноты, длины и дублей
-├── original_data.json          # Исходный эталонный массив данных в формате JSON
+├── tools/build_articles.js     # node tools/build_articles.js — собирает content/*.js в articles.js
+├── tools/validate_articles.js  # node tools/validate_articles.js — проверка полноты, длины и дублей
+├── tools/legacy/original_data.json # Исходный эталонный массив данных в формате JSON
 │
 ├── images/                     # Локальная библиотека фотографий (480+ снимков)
 │   ├── f1_*.jpg                # Фотоматериалы рубрики «Формула-1»
@@ -112,6 +112,7 @@ RACE4LIFE/
 │   ├── trk_*.jpg               # Исторические кадры автодромов
 │   └── sim_*.jpg               # Симрейсинг-оборудование и кокпиты
 │
+├── tools/legacy/*.py           # (устарело) старый Python-конвейер коротких заготовок; ниже — его части:
 ├── build_f1_articles.py        # Python-скрипт сборки расширенных статей
 ├── generate_*.py               # Модули автоматической генерации и нормализации категорий
 ├── data_f1.py / data_sci.py    # Пакетные модули контента
@@ -193,11 +194,11 @@ npx live-server
 
 ```bash
 # Просмотр каталога тем и вариаций
-cat topics_overview.txt
+cat tools/legacy/topics_overview.txt
 
 # Сборка и валидация модулей
-python build_f1_articles.py
-python inspect_data.py
+python tools/legacy/build_f1_articles.py
+python tools/legacy/inspect_data.py
 ```
 
 ---
