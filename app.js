@@ -14,8 +14,8 @@
     posts: [],
     filteredPosts: [],
     displayedCount: 15, // Показ порциями по 15 постов
-    authorMode: true,   // true = режим редактора (CRUD кнопки), false = режим чтения (чистый журнальный вид)
-    authorName: 'Автор блога',
+    authorMode: false,   // сайт только для чтения (чистый журнальный вид)
+    authorName: 'Тамарас Алиев',
     selectedCategory: 'all',
     selectedDate: null, // 'YYYY-MM-DD' или null
     searchQuery: '',
@@ -57,22 +57,7 @@
       state.posts = [];
     }
 
-    // Загрузка настроек автора
-    try {
-      const savedMode = localStorage.getItem('race4life_author_mode');
-      if (savedMode !== null) {
-        state.authorMode = savedMode === 'true';
-      }
-      const savedName = localStorage.getItem('race4life_author_name');
-      if (savedName) {
-        state.authorName = savedName;
-      }
-    } catch (e) {
-      console.warn('RACE4LIFE: Ошибка чтения настроек:', e);
-    }
-
     updateAuthorNameUI();
-    updateModeSwitchUI();
     setupEventListeners();
 
     applyFiltersAndSort();
@@ -259,28 +244,6 @@
     const likedClass = post.liked ? 'text-racing-carmine' : 'text-zinc-400 hover:text-racing-carmine';
     const heartSvgFill = post.liked ? 'currentColor' : 'none';
 
-    // Кнопки управления (видны только в режиме редактора, аккуратные и неброские)
-    const authorControlsHTML = state.authorMode ? `
-      <div class="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity ml-auto">
-        <button 
-          data-action="edit" 
-          data-id="${post.id}" 
-          class="p-1.5 rounded text-zinc-400 hover:text-white transition-colors"
-          title="Редактировать статью"
-        >
-          <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
-        </button>
-        <button 
-          data-action="delete" 
-          data-id="${post.id}" 
-          class="p-1.5 rounded text-zinc-400 hover:text-red-400 transition-colors"
-          title="Удалить статью"
-        >
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-        </button>
-      </div>
-    ` : '';
-
     return `
       <article data-post-id="${post.id}" class="group">
         <div class="post-card">
@@ -324,7 +287,6 @@
                 <i data-lucide="share" class="w-3.5 h-3.5"></i>
               </button>
 
-              ${authorControlsHTML}
             </div>
           </div>
         </div>
@@ -370,22 +332,6 @@
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
         sharePost(id);
-      });
-    });
-
-    container.querySelectorAll('[data-action="edit"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = btn.getAttribute('data-id');
-        openEditPostModal(id);
-      });
-    });
-
-    container.querySelectorAll('[data-action="delete"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = btn.getAttribute('data-id');
-        openDeleteModal(id);
       });
     });
   }
@@ -554,75 +500,6 @@
   // ========================================================
   // 7. ПОЛНЫЙ CRUD
   // ========================================================
-  function createPost(postData) {
-    const newId = `post-${postData.date}-${Date.now().toString().slice(-4)}`;
-    const newPost = {
-      id: newId,
-      title: postData.title.trim(),
-      category: postData.category,
-      date: postData.date,
-      time: postData.time,
-      timestamp: `${postData.date}T${postData.time}:00.000Z`,
-      image: postData.image || ((window.DataGenerator && typeof window.DataGenerator.getRelevantImage === 'function')
-        ? window.DataGenerator.getRelevantImage(postData.title, postData.content, postData.category)
-        : (window.DataGenerator && window.DataGenerator.getRandomImage ? window.DataGenerator.getRandomImage(postData.category) : '')),
-      excerpt: postData.excerpt.trim() || generateExcerptFromContent(postData.content),
-      content: postData.content.trim(),
-      views: Math.floor(8 + Math.random() * 20),
-      likes: Math.floor(Math.random() * 4),
-      liked: false
-    };
-
-    state.posts.unshift(newPost);
-    savePostsToStorage();
-
-    applyFiltersAndSort();
-    renderCalendar();
-    renderTelemetryAnalytics();
-
-    showToast('Материал успешно опубликован', 'success');
-  }
-
-  function updatePost(id, updatedData) {
-    const postIndex = state.posts.findIndex(p => p.id === id);
-    if (postIndex === -1) {
-      showToast('Ошибка: публикация не найдена', 'error');
-      return;
-    }
-
-    const post = state.posts[postIndex];
-    post.title = updatedData.title.trim();
-    post.category = updatedData.category;
-    post.date = updatedData.date;
-    post.time = updatedData.time;
-    post.timestamp = `${updatedData.date}T${updatedData.time}:00.000Z`;
-    if (updatedData.image) post.image = updatedData.image;
-    post.excerpt = updatedData.excerpt.trim() || generateExcerptFromContent(updatedData.content);
-    post.content = updatedData.content.trim();
-
-    savePostsToStorage();
-
-    applyFiltersAndSort();
-    renderCalendar();
-    renderTelemetryAnalytics();
-
-    showToast('Изменения сохранены', 'success');
-  }
-
-  function deletePost(id) {
-    const index = state.posts.findIndex(p => p.id === id);
-    if (index === -1) return;
-
-    state.posts.splice(index, 1);
-    savePostsToStorage();
-
-    applyFiltersAndSort();
-    renderCalendar();
-    renderTelemetryAnalytics();
-
-    showToast('Публикация удалена', 'info');
-  }
-
   function toggleLike(id, btn) {
     const post = state.posts.find(p => p.id === id);
     if (!post) return;
@@ -687,152 +564,9 @@
   // ========================================================
   // 8. СЖАТИЕ КАРТИНОК ДЛЯ LOCALSTORAGE (CANVAS 1000PX)
   // ========================================================
-  function compressImageFile(file, callback) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const img = new Image();
-      img.onload = function () {
-        const maxWidth = 1000;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-        callback(compressedBase64);
-      };
-      img.onerror = function () {
-        showToast('Не удалось загрузить изображение', 'error');
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
   // ========================================================
   // 9. МОДАЛЬНЫЕ ОКНА
   // ========================================================
-  function openCreatePostModal() {
-    state.editingPostId = null;
-
-    const modal = document.getElementById('post-modal');
-    const titleEl = document.getElementById('modal-title');
-    const submitText = document.getElementById('modal-submit-text');
-    const form = document.getElementById('post-form');
-
-    if (!modal || !form) return;
-
-    titleEl.textContent = 'Новая публикация';
-    submitText.textContent = 'Опубликовать';
-
-    form.reset();
-
-    document.getElementById('form-date').value = state.selectedDate || '2026-10-16';
-    document.getElementById('form-time').value = getRandomTimeStr();
-    const defaultCat = (state.selectedCategory !== 'all') ? state.selectedCategory : 'f1-news';
-    document.getElementById('form-category').value = defaultCat;
-
-    const initialImg = (window.DataGenerator && typeof window.DataGenerator.getRelevantImage === 'function')
-      ? window.DataGenerator.getRelevantImage('', '', defaultCat)
-      : (window.DataGenerator && window.DataGenerator.getRandomImage ? window.DataGenerator.getRandomImage(defaultCat) : '');
-    document.getElementById('form-image-url').value = initialImg;
-    updateCoverPreview(initialImg);
-
-    switchCoverMode('url');
-    modal.classList.remove('hidden');
-    document.getElementById('form-title').focus();
-  }
-
-  function openEditPostModal(id) {
-    const post = state.posts.find(p => p.id === id);
-    if (!post) return;
-
-    state.editingPostId = id;
-
-    const modal = document.getElementById('post-modal');
-    const titleEl = document.getElementById('modal-title');
-    const submitText = document.getElementById('modal-submit-text');
-
-    if (!modal) return;
-
-    titleEl.textContent = 'Редактирование статьи';
-    submitText.textContent = 'Сохранить изменения';
-
-    document.getElementById('form-title').value = post.title;
-    document.getElementById('form-category').value = post.category;
-    document.getElementById('form-date').value = post.date;
-    document.getElementById('form-time').value = post.time;
-    document.getElementById('form-excerpt').value = post.excerpt;
-    document.getElementById('form-content').value = post.content;
-
-    if (post.image && post.image.startsWith('data:image')) {
-      switchCoverMode('upload');
-      updateCoverPreview(post.image);
-    } else {
-      switchCoverMode('url');
-      document.getElementById('form-image-url').value = post.image;
-      updateCoverPreview(post.image);
-    }
-
-    modal.classList.remove('hidden');
-  }
-
-  function closePostModal() {
-    const modal = document.getElementById('post-modal');
-    if (modal) modal.classList.add('hidden');
-    state.editingPostId = null;
-  }
-
-  function switchCoverMode(mode) {
-    state.selectedImageMode = mode;
-    const tabUrl = document.getElementById('tab-cover-url');
-    const tabUpload = document.getElementById('tab-cover-upload');
-    const secUrl = document.getElementById('cover-url-section');
-    const secUpload = document.getElementById('cover-upload-section');
-
-    if (mode === 'url') {
-      if (tabUrl) {
-        tabUrl.classList.add('bg-surface-800', 'text-white', 'border-surface-700');
-        tabUrl.classList.remove('bg-surface-950', 'text-zinc-400', 'border-surface-800');
-      }
-      if (tabUpload) {
-        tabUpload.classList.remove('bg-surface-800', 'text-white', 'border-surface-700');
-        tabUpload.classList.add('bg-surface-950', 'text-zinc-400', 'border-surface-800');
-      }
-      if (secUrl) secUrl.classList.remove('hidden');
-      if (secUpload) secUpload.classList.add('hidden');
-    } else {
-      if (tabUpload) {
-        tabUpload.classList.add('bg-surface-800', 'text-white', 'border-surface-700');
-        tabUpload.classList.remove('bg-surface-950', 'text-zinc-400', 'border-surface-800');
-      }
-      if (tabUrl) {
-        tabUrl.classList.remove('bg-surface-800', 'text-white', 'border-surface-700');
-        tabUrl.classList.add('bg-surface-950', 'text-zinc-400', 'border-surface-800');
-      }
-      if (secUpload) secUpload.classList.remove('hidden');
-      if (secUrl) secUrl.classList.add('hidden');
-    }
-  }
-
-  function updateCoverPreview(src) {
-    const preview = document.getElementById('form-cover-preview');
-    if (preview && src) {
-      preview.src = src;
-      state.currentCoverData = src;
-    }
-  }
-
   // Модальное окно чтения статьи
   function openReaderModal(id) {
     const post = state.posts.find(p => p.id === id);
@@ -885,92 +619,9 @@
     state.readingPostId = null;
   }
 
-  function openDeleteModal(id) {
-    const post = state.posts.find(p => p.id === id);
-    if (!post) return;
-
-    state.deletingPostId = id;
-    const modal = document.getElementById('delete-modal');
-    const titleEl = document.getElementById('delete-modal-post-title');
-
-    if (titleEl) {
-      titleEl.innerHTML = `Удалить статью <br><strong class="text-white">«${escapeHtml(post.title)}»</strong>?`;
-    }
-    if (modal) modal.classList.remove('hidden');
-  }
-
-  function closeDeleteModal() {
-    const modal = document.getElementById('delete-modal');
-    if (modal) modal.classList.add('hidden');
-    state.deletingPostId = null;
-  }
-
-  function openResetModal() {
-    const modal = document.getElementById('reset-modal');
-    if (modal) modal.classList.remove('hidden');
-  }
-
-  function closeResetModal() {
-    const modal = document.getElementById('reset-modal');
-    if (modal) modal.classList.add('hidden');
-  }
-
   // ========================================================
   // 10. РЕЖИМ ЧТЕНИЯ / РЕДАКТОРА
   // ========================================================
-  function setAuthorMode(isAuthor) {
-    state.authorMode = isAuthor;
-    try {
-      localStorage.setItem('race4life_author_mode', isAuthor ? 'true' : 'false');
-    } catch (e) {}
-
-    updateModeSwitchUI();
-    renderFeed();
-
-    if (isAuthor) {
-      showToast('Режим редактора включен', 'success');
-    } else {
-      showToast('Режим чтения включен', 'info');
-    }
-  }
-
-  function updateModeSwitchUI() {
-    const authorBtn = document.getElementById('mode-author-btn');
-    const readerBtn = document.getElementById('mode-reader-btn');
-
-    if (state.authorMode) {
-      if (authorBtn) {
-        authorBtn.classList.add('bg-surface-800', 'text-white', 'shadow-sm');
-        authorBtn.classList.remove('text-zinc-400');
-      }
-      if (readerBtn) {
-        readerBtn.classList.remove('bg-surface-800', 'text-white', 'shadow-sm');
-        readerBtn.classList.add('text-zinc-400');
-      }
-    } else {
-      if (readerBtn) {
-        readerBtn.classList.add('bg-surface-800', 'text-white', 'shadow-sm');
-        readerBtn.classList.remove('text-zinc-400');
-      }
-      if (authorBtn) {
-        authorBtn.classList.remove('bg-surface-800', 'text-white', 'shadow-sm');
-        authorBtn.classList.add('text-zinc-400');
-      }
-    }
-  }
-
-  function promptEditAuthorName() {
-    const newName = prompt('Имя автора блога:', state.authorName);
-    if (newName && newName.trim()) {
-      state.authorName = newName.trim();
-      try {
-        localStorage.setItem('race4life_author_name', state.authorName);
-      } catch (e) {}
-      updateAuthorNameUI();
-      showToast(`Имя автора обновлено: ${state.authorName}`, 'success');
-    }
-  }
-
   function updateAuthorNameUI() {
     const el = document.getElementById('author-name-display');
     if (el) el.textContent = state.authorName;
@@ -981,43 +632,6 @@
   // ========================================================
   // 11. ЭКСПОРТ И СБРОС БАЗЫ
   // ========================================================
-  function exportDatabaseToJSON() {
-    try {
-      const dataStr = JSON.stringify(state.posts, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `race4life_posts_${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      showToast(`Экспортировано ${state.posts.length} статей в JSON`, 'success');
-    } catch (err) {
-      console.error(err);
-      showToast('Ошибка при экспорте файла', 'error');
-    }
-  }
-
-  function resetDatabaseToDefault() {
-    state.posts = window.DataGenerator.seedDatabase(true);
-    state.selectedDate = null;
-    state.selectedCategory = 'all';
-    state.searchQuery = '';
-    state.displayedCount = 15;
-
-    closeResetModal();
-
-    applyFiltersAndSort();
-    renderCalendar();
-    renderTelemetryAnalytics();
-
-    showToast('База восстановлена (465 публикаций)', 'success');
-  }
-
   // ========================================================
   // 12. СЛУШАТЕЛИ СОБЫТИЙ
   // ========================================================
@@ -1134,106 +748,6 @@
       brandHome.addEventListener('click', resetAllFilters);
     }
 
-    const authorModeBtn = document.getElementById('mode-author-btn');
-    const readerModeBtn = document.getElementById('mode-reader-btn');
-
-    if (authorModeBtn) authorModeBtn.addEventListener('click', () => setAuthorMode(true));
-    if (readerModeBtn) readerModeBtn.addEventListener('click', () => setAuthorMode(false));
-
-    const openCreateBtn = document.getElementById('btn-open-create-modal');
-    if (openCreateBtn) openCreateBtn.addEventListener('click', openCreatePostModal);
-
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    const modalCancelBtn = document.getElementById('modal-cancel-btn');
-    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closePostModal);
-    if (modalCancelBtn) modalCancelBtn.addEventListener('click', closePostModal);
-
-    const postModal = document.getElementById('post-modal');
-    if (postModal) {
-      postModal.addEventListener('click', (e) => {
-        if (e.target === postModal) closePostModal();
-      });
-    }
-
-    const tabCoverUrl = document.getElementById('tab-cover-url');
-    const tabCoverUpload = document.getElementById('tab-cover-upload');
-    const btnRandomCover = document.getElementById('btn-random-cover');
-    const formImgUrl = document.getElementById('form-image-url');
-    const formFileInput = document.getElementById('form-file-input');
-
-    if (tabCoverUrl) tabCoverUrl.addEventListener('click', () => switchCoverMode('url'));
-    if (tabCoverUpload) tabCoverUpload.addEventListener('click', () => switchCoverMode('upload'));
-
-    if (btnRandomCover) {
-      btnRandomCover.addEventListener('click', () => {
-        const titleVal = document.getElementById('form-title') ? document.getElementById('form-title').value : '';
-        const contentVal = document.getElementById('form-content') ? document.getElementById('form-content').value : '';
-        const catVal = document.getElementById('form-category') ? document.getElementById('form-category').value : 'f1-news';
-
-        let matchingImg = '';
-        if (window.DataGenerator && typeof window.DataGenerator.getRelevantImage === 'function') {
-          matchingImg = window.DataGenerator.getRelevantImage(titleVal, contentVal, catVal);
-        } else if (window.DataGenerator && typeof window.DataGenerator.getRandomImage === 'function') {
-          matchingImg = window.DataGenerator.getRandomImage(catVal);
-        }
-
-        switchCoverMode('url');
-        if (formImgUrl) formImgUrl.value = matchingImg;
-        updateCoverPreview(matchingImg);
-        showToast('Подобрана подходящая фотография по смыслу статьи!', 'info');
-      });
-    }
-
-    if (formImgUrl) {
-      formImgUrl.addEventListener('input', (e) => {
-        updateCoverPreview(e.target.value);
-      });
-    }
-
-    if (formFileInput) {
-      formFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          compressImageFile(file, (compressedBase64) => {
-            updateCoverPreview(compressedBase64);
-            showToast('Фото загружено', 'success');
-          });
-        }
-      });
-    }
-
-    const btnAutoExcerpt = document.getElementById('btn-auto-excerpt');
-    if (btnAutoExcerpt) {
-      btnAutoExcerpt.addEventListener('click', () => {
-        const contentVal = document.getElementById('form-content').value;
-        if (!contentVal.trim()) {
-          showToast('Сначала напишите текст статьи', 'warning');
-          return;
-        }
-        document.getElementById('form-excerpt').value = generateExcerptFromContent(contentVal);
-        showToast('Лид сформирован из первых предложений', 'info');
-      });
-    }
-
-    document.querySelectorAll('.btn-insert-tag').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const insertText = btn.getAttribute('data-insert');
-        const textarea = document.getElementById('form-content');
-        if (!textarea) return;
-
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
-
-        textarea.value = text.substring(0, start) + insertText + text.substring(end);
-        textarea.focus();
-        textarea.selectionStart = textarea.selectionEnd = start + insertText.length;
-      });
-    });
-
-    const modalSubmitBtn = document.getElementById('modal-submit-btn');
-    if (modalSubmitBtn) modalSubmitBtn.addEventListener('click', submitPostForm);
-
     const readerCloseBtn = document.getElementById('reader-close-btn');
     if (readerCloseBtn) readerCloseBtn.addEventListener('click', closeReaderModal);
 
@@ -1270,92 +784,11 @@
       });
     }
 
-    const delCancelBtn = document.getElementById('delete-modal-cancel-btn');
-    const delConfirmBtn = document.getElementById('delete-modal-confirm-btn');
-    if (delCancelBtn) delCancelBtn.addEventListener('click', closeDeleteModal);
-    if (delConfirmBtn) {
-      delConfirmBtn.addEventListener('click', () => {
-        if (state.deletingPostId) {
-          deletePost(state.deletingPostId);
-          closeDeleteModal();
-        }
-      });
-    }
-
-    const exportBtn = document.getElementById('btn-export-json');
-    if (exportBtn) exportBtn.addEventListener('click', exportDatabaseToJSON);
-
-    const resetTriggerBtn = document.getElementById('btn-reset-database-trigger');
-    const resetCancelBtn = document.getElementById('reset-modal-cancel-btn');
-    const resetConfirmBtn = document.getElementById('reset-modal-confirm-btn');
-
-    if (resetTriggerBtn) resetTriggerBtn.addEventListener('click', openResetModal);
-    if (resetCancelBtn) resetCancelBtn.addEventListener('click', closeResetModal);
-    if (resetConfirmBtn) resetConfirmBtn.addEventListener('click', resetDatabaseToDefault);
-
-    const editAuthorBtn = document.getElementById('btn-edit-author-name');
-    const authorNameDisplay = document.getElementById('author-name-display');
-    if (editAuthorBtn) editAuthorBtn.addEventListener('click', promptEditAuthorName);
-    if (authorNameDisplay) authorNameDisplay.addEventListener('click', promptEditAuthorName);
-
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        closePostModal();
         closeReaderModal();
-        closeDeleteModal();
-        closeResetModal();
       }
     });
-  }
-
-  function submitPostForm() {
-    const title = document.getElementById('form-title').value;
-    const category = document.getElementById('form-category').value;
-    const date = document.getElementById('form-date').value;
-    const time = document.getElementById('form-time').value;
-    const excerpt = document.getElementById('form-excerpt').value;
-    const content = document.getElementById('form-content').value;
-
-    if (!title.trim()) {
-      showToast('Укажите заголовок статьи', 'warning');
-      document.getElementById('form-title').focus();
-      return;
-    }
-
-    if (!content.trim()) {
-      showToast('Напишите текст публикации', 'warning');
-      document.getElementById('form-content').focus();
-      return;
-    }
-
-    let image = state.currentCoverData;
-    if (state.selectedImageMode === 'url') {
-      const urlVal = document.getElementById('form-image-url').value;
-      if (urlVal.trim()) image = urlVal.trim();
-    }
-    if (!image) {
-      image = (window.DataGenerator && typeof window.DataGenerator.getRelevantImage === 'function')
-        ? window.DataGenerator.getRelevantImage(title, content, category)
-        : (window.DataGenerator && window.DataGenerator.getRandomImage ? window.DataGenerator.getRandomImage(category) : '');
-    }
-
-    const postData = {
-      title,
-      category,
-      date,
-      time,
-      image,
-      excerpt,
-      content
-    };
-
-    if (state.editingPostId) {
-      updatePost(state.editingPostId, postData);
-    } else {
-      createPost(postData);
-    }
-
-    closePostModal();
   }
 
   function resetAllFilters() {
@@ -1378,16 +811,6 @@
   // ========================================================
   // 13. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
   // ========================================================
-  function generateExcerptFromContent(text) {
-    if (!text) return '';
-    const clean = text.replace(/###|\>|\*/g, '').trim();
-    const sentences = clean.split(/(?<=[.?!])\s+/);
-    if (sentences.length >= 2) {
-      return sentences.slice(0, 2).join(' ');
-    }
-    return clean.slice(0, 150) + '...';
-  }
-
   function formatArticleText(rawText) {
     if (!rawText) return '';
     const paragraphs = rawText.split('\n\n');
@@ -1412,12 +835,6 @@
       }
       return `<p class="leading-relaxed text-zinc-300 font-serif">${inline(trimmed)}</p>`;
     }).join('');
-  }
-
-  function getRandomTimeStr() {
-    const hours = String(Math.floor(9 + Math.random() * 14)).padStart(2, '0');
-    const mins = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-    return `${hours}:${mins}`;
   }
 
   function formatNumber(num) {
@@ -1495,15 +912,6 @@
     initApp();
   }
 
-  window.RACE4LIFE = {
-    state,
-    createPost,
-    updatePost,
-    deletePost,
-    toggleLike,
-    setAuthorMode,
-    resetDatabaseToDefault,
-    exportDatabaseToJSON
-  };
+  window.RACE4LIFE = { state, toggleLike };
 
 })();

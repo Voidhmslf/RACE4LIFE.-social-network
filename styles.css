@@ -94,8 +94,6 @@ aside h2 {
 
 /* ---------- Формы и кнопки ---------- */
 input, select, textarea { border-radius: 0 !important; }
-#btn-open-create-modal { background: var(--signal) !important; color: #120a07 !important; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-#btn-open-create-modal:hover { background: #ff6a42 !important; }
 #btn-load-more { border-radius: 0 !important; border: 2px solid var(--paper) !important; background: transparent !important; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
 #btn-load-more:hover { background: var(--paper) !important; color: var(--ink) !important; }
 
@@ -115,8 +113,6 @@ footer { background: var(--ink) !important; border-top: 2px solid var(--paper) !
   main > .grid > section { order: -1; }
 }
 @media (max-width: 639px) {
-  #btn-open-create-modal span { display: none; }
-  #btn-open-create-modal { padding: .55rem .7rem; }
-  .wordmark { font-size: 1.55rem; }
+      .wordmark { font-size: 1.55rem; }
   #posts-container > article:first-child .post-title { font-size: 1.7rem; }
 }
